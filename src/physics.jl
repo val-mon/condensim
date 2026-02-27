@@ -1,3 +1,4 @@
 module PHYSICS
-const g = 9.81  # [m]/[s]^2
+# atomic mass unit [kg]
+const u = 1.66053906660e-27
 end
