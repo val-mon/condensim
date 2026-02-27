@@ -1,0 +1,92 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{parskip}
+\setlength{\parskip}{0.8em}
+\usepackage{ragged2e}
+
+\geometry{
+  left=1cm,
+  right=1cm,
+  top=1cm,
+  bottom=1cm,
+  includefoot
+}
+
+\title{Condensim}
+\author{Valentin Monod}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Question 2.2}
+La théorie cinétique des gaz c’est notre modèle : la sphère.
+
+
+Les molécules He et Ne sont monoatomiques (un seul atome), alors que N₂ et O₂ sont diatomiques (deux atomes liés). Elles diffèrent surtout par leur masse et leur structure, ce qui influence leur vitesse moyenne et leurs degrés de liberté (les molécules diatomiques peuvent aussi tourner).
+
+
+La théorie cinétique des gaz fonctionne bien pour tous ces gaz lorsqu’ils sont dilués, à faible pression et température modérée. Elle est particulièrement précise pour les gaz nobles comme He et Ne. Elle devient moins exacte à haute pression ou basse température, où les interactions entre molécules deviennent importantes.
+
+
+\section*{Question 3.1}
+
+On applique la deuxième loi de Newton :
+
+\[
+\vec{F} = m \vec{a}
+\]
+
+Dans le cas sans interaction :
+
+\[
+\vec{F} = 0
+\]
+
+Donc :
+
+\[
+\vec{a} = 0
+\]
+
+La vitesse est constante :
+
+\[
+\vec{v}(t) = \vec{v}_0
+\]
+
+La position évolue selon :
+
+\[
+\vec{r}(t) = \vec{r}_0 + \vec{v}_0 t
+\]
+
+\section*{Question 3.2}
+
+Méthode d'Euler explicite :
+
+\[
+\vec{v}_{n+1} = \vec{v}_n + \vec{a}_n \Delta t
+\]
+
+\[
+\vec{r}_{n+1} = \vec{r}_n + \vec{v}_n \Delta t
+\]
+
+Dans notre cas, comme $\vec{a}=0$ :
+
+\[
+\vec{v}_{n+1} = \vec{v}_n
+\]
+
+\[
+\vec{r}_{n+1} = \vec{r}_n + \vec{v}_n \Delta t
+\]
+\end{document}

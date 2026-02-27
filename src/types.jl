@@ -1,14 +1,3 @@
-mutable struct Vec3
-    x::Float64
-    y::Float64
-    z::Float64
-end
-
-function Base.show(io::IO, v::Vec3)
-    print(io, "($(v.x), $(v.y), $(v.z))")
-end
-
-
 mutable struct Molecule
     # mass [kg]
     mass::Float64
@@ -17,10 +6,10 @@ mutable struct Molecule
     radius::Float64
 
     # spatial position
-    pos::Vec3
+    pos::Vector{Float64}
     
     # velocity [m/s]
-    velocity::Vec3
+    velocity::Vector{Float64}
 
     # chemical formula
     formula::String
