@@ -86,11 +86,77 @@ function collision_sim()
 
         t += DT
     end
-    
+
     gif(anim, "export/collision_sim.gif")
+end
+
+function single_collision()
+    r_He, r_Ne = 31e-12, 38e-12
+    m_He = 4.0026 * PHYSICS.u
+    m_Ne = 20.1797 * PHYSICS.u
+
+    cases = [
+        (
+            Molecule(m_He, r_He, [-0.4e-9, 0.0, 0.0], [100.0, 0.0, 0.0], "He"),
+            Molecule(m_He, r_He, [0.4e-9, 0.0, 0.0], [-100.0, 0.0, 0.0], "He"),
+            "cas 1 : frontal, masses égales (He+He)",
+        ),
+        (
+            Molecule(m_He, r_He, [-0.4e-9, 0.0, 0.0], [100.0, 0.0, 0.0], "He"),
+            Molecule(m_Ne, r_Ne, [0.4e-9, 0.0, 0.0], [0.0, 0.0, 0.0], "Ne"),
+            "cas 2 : frontal, masses différentes (He+Ne)",
+        ),
+        (
+            Molecule(m_He, r_He, [-0.4e-9, 0.0, 0.0], [100.0, 0.0, 0.0], "He"),
+            Molecule(m_He, r_He, [0.0, (r_He + r_He) * sqrt(2) / 2, 0.0], [0.0, 0.0, 0.0], "He"),
+            "cas 3 : oblique 45° (He+He)",
+        ),
+    ]
+
+    duration = 10e-12
+
+    for (i, (mol1, mol2, title)) in enumerate(cases)
+        t = 0.0
+
+        anim = @animate while t < duration
+            p = plot(
+                xlims=LIMS,
+                ylims=LIMS,
+                size=PLOT_SIZE,
+            )
+
+            scatter!(p,
+                [mol1.pos[1]],
+                [mol1.pos[2]],
+                markersize=PLOT_SIZE[1] * 0.75 * mol1.radius / BOX,
+                color=:red,
+                label=mol1.formula
+            )
+
+            scatter!(p,
+                [mol2.pos[1]],
+                [mol2.pos[2]],
+                markersize=PLOT_SIZE[1] * 0.75 * mol2.radius / BOX,
+                color=:blue,
+                label=mol2.formula
+            )
+
+            compute_next_pos!(mol1, DT)
+            compute_next_pos!(mol2, DT)
+
+            if are_colliding(mol1, mol2)
+                resolve_collision!(mol1, mol2)
+            end
+
+            t += DT
+        end
+
+        gif(anim, "export/single_collision$(i).gif")
+    end
 end
 
 function simulation()
     simple_sim()
     collision_sim()
+    single_collision()
 end
