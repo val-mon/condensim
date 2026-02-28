@@ -2,13 +2,15 @@ module Condensim
 
 using Plots
 using Random
+using LinearAlgebra
 
 include("types.jl")
 include("physics.jl")
-include("mouvement.jl")
+include("collisions.jl")
+include("simulation.jl")
 
 function main()
-    simulate_mouvement()
+    simulation()
 end
 
 end
