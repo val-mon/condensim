@@ -26,3 +26,16 @@ function Base.show(io::IO, m::Molecule)
     println(io, "  position [m]   : $(m.pos)")
     println(io, "  velocity [m/s] : $(m.velocity)")
 end
+
+mutable struct Domain
+    # length x [m]
+    Lx::Float64
+
+    # length y [m]
+    Ly::Float64
+
+    # length z [m]
+    Lz::Float64
+end
+
+volume(d::Domain) = d.Lx * d.Ly * d.Lz

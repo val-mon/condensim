@@ -1,9 +1,9 @@
 const DT = 1e-13
-const BOX = 1e-9
+const DOMAIN = Domain(2e-9, 2e-9, 2e-9)
 const N_MOLS = 15
 const DURATION = 40e-12
 
-const LIMS = (-BOX, BOX)
+const LIMS = (-DOMAIN.Lx/2, DOMAIN.Lx/2)
 const PLOT_SIZE = (800, 800)
 
 const MOL_TYPES = [
@@ -15,7 +15,7 @@ const MOL_TYPES = [
 
 function find_empty_pos(existing, mol::Molecule)
     while true
-        pos = (BOX - mol.radius) .* (2 .* rand(3) .- 1)
+        pos = ([DOMAIN.Lx, DOMAIN.Ly, DOMAIN.Lz] ./ 2 .- mol.radius) .* (2 .* rand(3) .- 1)
         if isempty(existing) || all(norm(m.pos .- pos) >= m.radius + mol.radius for m in existing)
             return pos
         end
@@ -25,7 +25,6 @@ end
 function generate_mol(n::Int)
     molecules = []
     for _ in 1:n
-        # new_mol = copy(MOL_TYPES[rand(1:length(MOL_TYPES))])
         new_mol = copy(MOL_TYPES[1])
         new_mol.velocity = 100.0 .* (2 .* rand(3) .- 1)
         new_mol.pos = find_empty_pos(molecules, new_mol)
@@ -49,7 +48,6 @@ function simple_sim()
         for mol in molecules
             scatter3d!(p, [mol.pos[1]], [mol.pos[2]], [mol.pos[3]], label=false)
             compute_next_pos!(mol, DT)
-            reflect_walls!(mol, BOX)
         end
         t += DT
     end
@@ -73,7 +71,7 @@ function collision_sim()
         for mol in molecules
             scatter3d!(p, [mol.pos[1]], [mol.pos[2]], [mol.pos[3]], label=false)
             compute_next_pos!(mol, DT)
-            reflect_walls!(mol, BOX)
+            reflect_walls!(mol, DOMAIN)
         end
 
         for i in 1:length(molecules)
@@ -128,7 +126,7 @@ function single_collision()
             scatter!(p,
                 [mol1.pos[1]],
                 [mol1.pos[2]],
-                markersize=PLOT_SIZE[1] * 0.75 * mol1.radius / BOX,
+                markersize=PLOT_SIZE[1] * 0.75 * mol1.radius / (DOMAIN.Lx/2),
                 color=:red,
                 label=mol1.formula
             )
@@ -136,7 +134,7 @@ function single_collision()
             scatter!(p,
                 [mol2.pos[1]],
                 [mol2.pos[2]],
-                markersize=PLOT_SIZE[1] * 0.75 * mol2.radius / BOX,
+                markersize=PLOT_SIZE[1] * 0.75 * mol2.radius / (DOMAIN.Lx/2),
                 color=:blue,
                 label=mol2.formula
             )

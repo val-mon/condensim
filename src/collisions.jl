@@ -27,13 +27,16 @@ function resolve_collision!(mol1::Molecule, mol2::Molecule)
     mol2.velocity = mol2.velocity .+ (2 * mol1.mass / (mol1.mass + mol2.mass)) .* Δv .* n̂
 end
 
-function reflect_walls!(mol::Molecule, box)
+function reflect_walls!(mol::Molecule, domain::Domain)
+    half = [domain.Lx, domain.Ly, domain.Lz] ./ 2
     for i in 1:3
-        if mol.pos[i] - mol.radius < -box
-            mol.pos[i] = -box + mol.radius
+        lo = -half[i] + mol.radius
+        hi =  half[i] - mol.radius
+        if mol.pos[i] < lo
+            mol.pos[i] = 2*lo - mol.pos[i]
             mol.velocity[i] = abs(mol.velocity[i])
-        elseif mol.pos[i] + mol.radius > box
-            mol.pos[i] = box - mol.radius
+        elseif mol.pos[i] > hi
+            mol.pos[i] = 2*hi - mol.pos[i]
             mol.velocity[i] = -abs(mol.velocity[i])
         end
     end
