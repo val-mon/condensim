@@ -5,6 +5,7 @@ using Condensim
 const ATOL = 1e-10
 momentum(mol1, mol2) = mol1.mass .* mol1.velocity .+ mol2.mass .* mol2.velocity
 energy(mol1, mol2) = 0.5 * mol1.mass * norm(mol1.velocity)^2 + 0.5 * mol2.mass * norm(mol2.velocity)^2
+speed(mol) = norm(mol.velocity)
 
 @testset "collisions" begin
     @testset "frontal shock, same masses" begin
@@ -61,59 +62,72 @@ end
     @testset "right x wall" begin
         mol = Molecule(1.0, 0.1, [0.95, 0.0, 0.0], [1.0, 0.0, 0.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[1] < 0.9 + ATOL
-        @test mol.velocity[1] < 0.0
+        @test isapprox(mol.velocity, [-1.0, 0.0, 0.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "left x wall" begin
         mol = Molecule(1.0, 0.1, [-0.95, 0.0, 0.0], [-1.0, 0.0, 0.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[1] > -0.9 - ATOL
-        @test mol.velocity[1] > 0.0
+        @test isapprox(mol.velocity, [1.0, 0.0, 0.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "right y wall" begin
         mol = Molecule(1.0, 0.1, [0.0, 0.95, 0.0], [0.0, 1.0, 0.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[2] < 0.9 + ATOL
-        @test mol.velocity[2] < 0.0
+        @test isapprox(mol.velocity, [0.0, -1.0, 0.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "left y wall" begin
         mol = Molecule(1.0, 0.1, [0.0, -0.95, 0.0], [0.0, -1.0, 0.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[2] > -0.9 - ATOL
-        @test mol.velocity[2] > 0.0
+        @test isapprox(mol.velocity, [0.0, 1.0, 0.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "right z wall" begin
         mol = Molecule(1.0, 0.1, [0.0, 0.0, 0.95], [0.0, 0.0, 1.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[3] < 0.9 + ATOL
-        @test mol.velocity[3] < 0.0
+        @test isapprox(mol.velocity, [0.0, 0.0, -1.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "left z wall" begin
         mol = Molecule(1.0, 0.1, [0.0, 0.0, -0.95], [0.0, 0.0, -1.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[3] > -0.9 - ATOL
-        @test mol.velocity[3] > 0.0
+        @test isapprox(mol.velocity, [0.0, 0.0, 1.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "corner x and y" begin
         mol = Molecule(1.0, 0.1, [0.95, 0.95, 0.0], [1.0, 1.0, 0.0], "A")
         d = Domain(2.0, 2.0, 2.0)
+        s0 = speed(mol)
         reflect_walls!(mol, d)
         @test mol.pos[1] < 0.9 + ATOL
-        @test mol.velocity[1] < 0.0
         @test mol.pos[2] < 0.9 + ATOL
-        @test mol.velocity[2] < 0.0
+        @test isapprox(mol.velocity, [-1.0, -1.0, 0.0]; atol=ATOL)
+        @test isapprox(speed(mol), s0; atol=ATOL)
     end
 
     @testset "no reflection inside" begin
