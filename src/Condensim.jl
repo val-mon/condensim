@@ -3,6 +3,7 @@ module Condensim
 using Plots
 using Random
 using LinearAlgebra
+using Statistics
 
 include("types.jl")
 include("physics.jl")
