@@ -27,6 +27,16 @@ function resolve_collision!(mol1::Molecule, mol2::Molecule)
     mol2.velocity = mol2.velocity .+ (2 * mol1.mass / (mol1.mass + mol2.mass)) .* Δv .* n̂
 end
 
+function resolve_collisions!(molecules)
+    for i in 1:length(molecules)
+        for j in i+1:length(molecules)
+            if are_colliding(molecules[i], molecules[j])
+                resolve_collision!(molecules[i], molecules[j])
+            end
+        end
+    end
+end
+
 function reflect_walls!(mol::Molecule, domain::Domain)
     half = [domain.Lx, domain.Ly, domain.Lz] ./ 2
     for i in 1:3
