@@ -179,11 +179,11 @@ function he_sim()
     savefig(fig, "export/velo_mean.png")
 
     # display alpha during time simulation
-    fig = plot(times, alphas, label=false, title="alpha (temperature)", size=PLOT_SIZE)
+    fig = plot(times, alphas, label=false, title="alpha (temperature)", ylims=(minimum(alphas) * 0.99, maximum(alphas) * 1.01), size=PLOT_SIZE)
     savefig(fig, "export/alpha.png")
 
     # display beta during time simulation
-    fig = plot(times, betas, label=false, title="beta (pressure)", size=PLOT_SIZE)
+    fig = plot(times, betas, label=false, title="beta (pressure)", ylims=(minimum(betas) * 0.99, maximum(betas) * 1.01), size=PLOT_SIZE)
     savefig(fig, "export/beta.png")
 
     # display beginning distribution of mean during simulation

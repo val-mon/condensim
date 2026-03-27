@@ -28,10 +28,13 @@ function resolve_collision!(mol1::Molecule, mol2::Molecule)
 end
 
 function resolve_collisions!(molecules)
+    resolved = Set{Int}()
     for i in 1:length(molecules)
         for j in i+1:length(molecules)
-            if are_colliding(molecules[i], molecules[j])
+            if !in(i, resolved) && !in(j, resolved) && are_colliding(molecules[i], molecules[j])
                 resolve_collision!(molecules[i], molecules[j])
+                push!(resolved, i)
+                push!(resolved, j)
             end
         end
     end
