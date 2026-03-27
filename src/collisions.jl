@@ -1,5 +1,5 @@
 function compute_next_pos!(mol, dt)
-    acc = zeros(3)
+    acc = [0, 0, PHYSICS.g]
     mol.velocity = mol.velocity + acc * dt
     mol.pos = mol.pos + mol.velocity * dt
 end

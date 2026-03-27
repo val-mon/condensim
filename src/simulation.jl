@@ -72,7 +72,7 @@ function single_col()
             Molecule(m_He, r_He, [-0.4e-9, 0.0, 0.0], [200.0, 0.0, 0.0], "He"),
             Molecule(m_He, r_He, [0.4e-9, 0.0, 0.0], [-200.0, 0.0, 0.0], "He"),
             "frontal shock, same masses",
-            ),
+        ),
         (
             Molecule(m_He, r_He, [-0.4e-9, 0.0, 0.0], [200.0, 0.0, 0.0], "He"),
             Molecule(m_Ne, r_Ne, [0.4e-9, 0.0, 0.0], [0.0, 0.0, 0.0], "Ne"),
@@ -140,12 +140,14 @@ function he_sim()
     velos_norms = []
     alphas = []
     betas = []
+    pos_z_all = []
 
     anim = @animate while t < duration
         p = plot3d(title="t = $(round(t*1e12, digits=2)) [ps]", xlims=lims, ylims=lims, zlims=lims, size=PLOT_SIZE)
 
         velos = []
         velos_2 = []
+        pos_z = []
 
         for mol in molecules
             scatter3d!(p, [mol.pos[1]], [mol.pos[2]], [mol.pos[3]], label=false)
@@ -153,6 +155,7 @@ function he_sim()
             reflect_walls!(mol, domain)
             push!(velos, norm(mol.velocity))
             push!(velos_2, norm(mol.velocity)^2)
+            push!(pos_z, mol.pos[3])
         end
 
         velo_mean = mean(velos)
@@ -165,6 +168,7 @@ function he_sim()
         push!(velos_norms, velos)
         push!(alphas, alpha)
         push!(betas, beta)
+        push!(pos_z_all, pos_z)
 
         resolve_collisions!(molecules)
 
@@ -217,17 +221,44 @@ function he_sim()
             bins=40,
             title="t [ps] = $(round(times[i]*1e12, digits=2))",
             xlims=(-500, 4000),
-            ylim=(0, 120),
+            ylims=(0, 120),
             size=PLOT_SIZE,
         )
     end
     gif(anim, "export/velo_distrib.gif")
 
+    anim = @animate for i in 1:length(pos_z_all)
+        histogram(
+            pos_z_all[i],
+            label=false,
+            bins=40,
+            normalize=:probability,
+            title="t [ps] = $(round(times[i]*1e12, digits=2))",
+            xlims=lims,
+            ylims=(0, 1)
+        )
+    end
+    gif(anim, "export/pos_z.gif")
+
     println()
+end
+
+function gravity_time(d, temp, mol)
+    # define gravity velocity
+    v = (mol.mass * PHYSICS.g * PHYSICS.D) / (PHYSICS.k_g * temp)
+
+    # compute time in seconds
+    s = d * 1 / v
+    println(s)
+
+    # convert to year
+    h = s / 60 / 24 / 365
+    println(h)
 end
 
 function simulation()
     col_sim()
     single_col()
     he_sim()
+    gravity_time(1, 26.85, MOL_TYPES[1])
 end
