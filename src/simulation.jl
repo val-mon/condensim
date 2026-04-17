@@ -228,9 +228,56 @@ function gravity_time(d, temp, mol)
     println(h)
 end
 
-function simulation()
+function he_sim_v2()
+    dt = 1e-13
+    duration = 5e-11
+    domain = Domain(2e-8, 2e-8, 2e-8)
+    lims = (-domain.Lx / 2, domain.Lx / 2)
+    n_mols = 500
+    g = 9.81e13
+
+    t = 0.0
+    molecules = generate_mol(n_mols, [MOL_TYPES[1]], domain; speed=1367.0)
+
+    pos_z_all = []
+    times = []
+
+    while t < duration
+        pos_z = Float64[]
+
+        for mol in molecules
+            compute_next_pos!(mol, dt, g)
+            reflect_walls!(mol, domain)
+            push!(pos_z, mol.pos[3])
+        end
+
+        resolve_collisions!(molecules)
+
+        push!(pos_z_all, pos_z)
+        push!(times, t)
+
+        t += dt
+    end
+
+    fig = histogram(
+        last(pos_z_all),
+        label=false,
+        bins=40,
+        normalize=:probability,
+        title="posz final distrib",
+        xlabel="z [m]",
+        ylabel="probability",
+        size=PLOT_SIZE
+    )
+    savefig(fig, "export/he_sim_v2_z.png")
+
+    println()
+end
+
+function launch_simulation()
     col_sim()
     single_col()
     he_sim()
     gravity_time(1, 26.85, MOL_TYPES[1])
+    he_sim_v2()
 end

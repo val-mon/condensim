@@ -5,8 +5,8 @@ const MOL_TYPES = [
     Molecule(31.9988 * PHYSICS.u, 60e-12, zeros(3), zeros(3), "O2"),
 ]
 
-function compute_next_pos!(mol, dt)
-    acc = [0, 0, PHYSICS.g]
+function compute_next_pos!(mol, dt, g = PHYSICS.g)
+    acc = [0, 0, -g]
     mol.velocity = mol.velocity + acc * dt
     mol.pos = mol.pos + mol.velocity * dt
 end

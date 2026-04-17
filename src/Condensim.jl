@@ -14,7 +14,7 @@ export Domain, volume, reflect_walls!
 export Molecule, resolve_collision!, are_colliding
 
 function main()
-    simulation()
+    launch_simulation()
 end
 
 end
