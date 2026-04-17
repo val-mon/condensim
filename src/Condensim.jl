@@ -7,7 +7,7 @@ using Statistics
 
 include("types.jl")
 include("physics.jl")
-include("collisions.jl")
+include("utils.jl")
 include("simulation.jl")
 
 export Domain, volume, reflect_walls!

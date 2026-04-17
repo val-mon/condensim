@@ -1,7 +1,35 @@
+const MOL_TYPES = [
+    Molecule(4.0026 * PHYSICS.u, 1.1e-10, zeros(3), zeros(3), "He"),
+    Molecule(20.1797 * PHYSICS.u, 38e-12, zeros(3), zeros(3), "Ne"),
+    Molecule(28.0134 * PHYSICS.u, 65e-12, zeros(3), zeros(3), "N2"),
+    Molecule(31.9988 * PHYSICS.u, 60e-12, zeros(3), zeros(3), "O2"),
+]
+
 function compute_next_pos!(mol, dt)
     acc = [0, 0, PHYSICS.g]
     mol.velocity = mol.velocity + acc * dt
     mol.pos = mol.pos + mol.velocity * dt
+end
+
+function find_empty_pos(existing, mol::Molecule, domain::Domain)
+    while true
+        pos = ([domain.Lx, domain.Ly, domain.Lz] ./ 2 .- mol.radius) .* (2 .* rand(3) .- 1)
+        if isempty(existing) || all(norm(m.pos .- pos) >= m.radius + mol.radius for m in existing)
+            return pos
+        end
+    end
+end
+
+function generate_mol(n::Int, mol_types::Vector{Molecule}, domain::Domain; speed=1400.0)
+    molecules = []
+    for _ in 1:n
+        new_mol = copy(rand(mol_types))
+        v = 2 .* rand(3) .- 1
+        new_mol.velocity = speed .* v ./ norm(v)
+        new_mol.pos = find_empty_pos(molecules, new_mol, domain)
+        push!(molecules, new_mol)
+    end
+    return molecules
 end
 
 function are_colliding(mol1::Molecule, mol2::Molecule)::Bool
