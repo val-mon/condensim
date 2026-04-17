@@ -233,7 +233,7 @@ function he_sim_v2()
     duration = 5e-11
     domain = Domain(2e-8, 2e-8, 2e-8)
     lims = (-domain.Lx / 2, domain.Lx / 2)
-    n_mols = 500
+    n_mols = 1_000
     g = 9.81e13
 
     t = 0.0
@@ -259,25 +259,56 @@ function he_sim_v2()
         t += dt
     end
 
+    n_bins = 40
+
+    # posz distribution from final state
     fig = histogram(
         last(pos_z_all),
         label=false,
-        bins=40,
+        bins=n_bins,
         normalize=:probability,
         title="posz final distrib",
         xlabel="z [m]",
         ylabel="probability",
         size=PLOT_SIZE
     )
-    savefig(fig, "export/he_sim_v2_z.png")
+    savefig(fig, "export/he_sim_v2_posz.png")
+
+    # pressure profile from final state
+    z_min = -domain.Lz / 2
+    z_max = domain.Lz / 2
+    dz = (z_max - z_min) / n_bins
+    V_bin = domain.Lx * domain.Ly * dz
+    mol_mass = MOL_TYPES[1].mass
+
+    z_centers = [z_min + (i - 0.5) * dz for i in 1:n_bins]
+    pressures = zeros(n_bins)
+
+    for mol in molecules
+        bin_idx = clamp(floor(Int, (mol.pos[3] - z_min) / dz) + 1, 1, n_bins)
+        v2 = sum(mol.velocity .^ 2)
+        pressures[bin_idx] += mol_mass * v2 / 3
+    end
+    pressures ./= V_bin
+
+    fig = plot(
+        z_centers,
+        pressures,
+        label=false,
+        title="pressure z",
+        xlabel="z [m]",
+        ylabel="P [Pa]",
+        size=PLOT_SIZE,
+    )
+    savefig(fig, "export/he_sim_v2_pressure_z.png")
 
     println()
 end
 
 function launch_simulation()
-    col_sim()
-    single_col()
-    he_sim()
-    gravity_time(1, 26.85, MOL_TYPES[1])
+    # col_sim()
+    # single_col()
+    # he_sim()
+    # gravity_time(1, 26.85, MOL_TYPES[1])
     he_sim_v2()
 end
