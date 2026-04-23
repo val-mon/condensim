@@ -1,6 +1,10 @@
 const PLOT_SIZE = (800, 800)
 
-function col_sim()
+function simple_collision()
+    export_path = "export/simple_collision"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
     dt = 1e-13
     duration = 40e-12
     domain = Domain(2e-9, 2e-9, 2e-9)
@@ -24,10 +28,14 @@ function col_sim()
         t += dt
     end
 
-    gif(anim, "export/col_sim.gif")
+    gif(anim, "$export_path/sim.gif")
 end
 
-function single_col()
+function single_collision()
+    export_path = "export/single_collision"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
     dt = 1e-13
     duration = 10e-12
     domain = Domain(2e-9, 2e-9, 2e-9)
@@ -93,11 +101,15 @@ function single_col()
             t += dt
         end
 
-        gif(anim, "export/single_col$(i).gif")
+        gif(anim, "$export_path/$(i).gif")
     end
 end
 
-function he_sim()
+function he()
+    export_path = "export/he"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
     dt = 10e-14
     duration = 2e-11
     domain = Domain(1e-8, 1e-8, 1e-8)
@@ -148,19 +160,19 @@ function he_sim()
     end
 
     # save the simulation animation
-    gif(anim, "export/he_sim.gif")
+    gif(anim, "$export_path/_sim.gif")
 
     # display velocity mean during time simulation
     fig = plot(times, v_means, label=false, title="velocity mean", size=PLOT_SIZE)
-    savefig(fig, "export/velo_mean.png")
+    savefig(fig, "$export_path/velo_mean.png")
 
     # display alpha during time simulation
     fig = plot(times, alphas, label=false, title="alpha (temperature)", ylims=(minimum(alphas) * 0.99, maximum(alphas) * 1.01), size=PLOT_SIZE)
-    savefig(fig, "export/alpha.png")
+    savefig(fig, "$export_path/alpha.png")
 
     # display beta during time simulation
     fig = plot(times, betas, label=false, title="beta (pressure)", ylims=(minimum(betas) * 0.99, maximum(betas) * 1.01), size=PLOT_SIZE)
-    savefig(fig, "export/beta.png")
+    savefig(fig, "$export_path/beta.png")
 
     # display beginning distribution of mean during simulation
     fig = histogram(
@@ -172,7 +184,7 @@ function he_sim()
         ylims=(0, 200),
         size=PLOT_SIZE,
     )
-    savefig(fig, "export/velo_10th.png")
+    savefig(fig, "$export_path/velo_10th.png")
 
     # display ending distribution of mean during simulation
     fig = histogram(
@@ -184,7 +196,7 @@ function he_sim()
         ylims=(0, 200),
         size=PLOT_SIZE,
     )
-    savefig(fig, "export/velo_last.png")
+    savefig(fig, "$export_path/velo_last.png")
 
     anim = @animate for i in 1:length(velos_norms)
         histogram(
@@ -197,7 +209,7 @@ function he_sim()
             size=PLOT_SIZE,
         )
     end
-    gif(anim, "export/velo_distrib.gif")
+    gif(anim, "$export_path/velo_distrib.gif")
 
     anim = @animate for i in 1:length(pos_z_all)
         histogram(
@@ -210,7 +222,7 @@ function he_sim()
             ylims=(0, 1)
         )
     end
-    gif(anim, "export/pos_z.gif")
+    gif(anim, "$export_path/pos_z.gif")
 
     println()
 end
@@ -221,14 +233,18 @@ function gravity_time(d, temp, mol)
 
     # compute time in seconds
     s = d * 1 / v
-    println(s)
+    println("t [s]    : ", s)
 
     # convert to year
     h = s / 60 / 24 / 365
-    println(h)
+    println("t [year] : ", h)
 end
 
-function he_sim_v2()
+function he_with_g()
+    export_path = "export/he_with_g"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
     dt = 1e-13
     duration = 5e-11
     domain = Domain(2e-8, 2e-8, 2e-8)
@@ -272,7 +288,7 @@ function he_sim_v2()
         ylabel="probability",
         size=PLOT_SIZE
     )
-    savefig(fig, "export/he_sim_v2_posz.png")
+    savefig(fig, "$export_path/posz.png")
 
     # pressure profile from final state
     z_min = -domain.Lz / 2
@@ -300,15 +316,154 @@ function he_sim_v2()
         ylabel="P [Pa]",
         size=PLOT_SIZE,
     )
-    savefig(fig, "export/he_sim_v2_pressure_z.png")
+    savefig(fig, "$export_path/pressure_z.png")
+
+    println()
+end
+
+function he_ar()
+    export_path = "export/he_ar"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
+    dt = 1e-14
+    duration = 5e-11
+    domain = Domain(2e-8, 2e-8, 2e-8)
+    lims = (-domain.Lx / 2, domain.Lx / 2)
+    g = 9.81e13
+
+    n_he = 400
+    n_ar = 200
+
+    he_type = MOL_TYPES[findfirst(m -> m.formula == "He", MOL_TYPES)]
+    ar_type = MOL_TYPES[findfirst(m -> m.formula == "Ar", MOL_TYPES)]
+
+    he_mols = generate_mol(n_he, [he_type], domain; speed=789.45)
+    ar_mols = generate_mol(n_ar, [ar_type], domain; speed=249.88)
+    molecules = [he_mols..., ar_mols...]
+
+    t = 0.0
+    step = 0
+    anim_every = 30
+    anim = Animation()
+
+    while t < duration
+        for mol in molecules
+            compute_next_pos!(mol, dt, g)
+            reflect_walls!(mol, domain)
+        end
+        resolve_collisions!(molecules)
+
+        if step % anim_every == 0
+            p = plot3d(
+                title="t = $(round(t*1e12, digits=2)) [ps]",
+                xlims=lims, ylims=lims, zlims=lims,
+                size=PLOT_SIZE,
+            )
+
+            he_x = [m.pos[1] for m in molecules if m.formula == "He"]
+            he_y = [m.pos[2] for m in molecules if m.formula == "He"]
+            he_z = [m.pos[3] for m in molecules if m.formula == "He"]
+
+            ar_x = [m.pos[1] for m in molecules if m.formula == "Ar"]
+            ar_y = [m.pos[2] for m in molecules if m.formula == "Ar"]
+            ar_z = [m.pos[3] for m in molecules if m.formula == "Ar"]
+
+            scatter3d!(p, he_x, he_y, he_z, label="He", color=:blue, ms=2)
+            scatter3d!(p, ar_x, ar_y, ar_z, label="Ar", color=:red, ms=3)
+
+            frame(anim, p)
+        end
+
+        step += 1
+        t += dt
+    end
+
+    # Q9.1
+    gif(anim, "$export_path/_sim.gif")
+
+    # Q9.2
+    he_z_final = [m.pos[3] for m in molecules if m.formula == "He"]
+    ar_z_final = [m.pos[3] for m in molecules if m.formula == "Ar"]
+
+    fig = histogram(
+        he_z_final,
+        label="He",
+        bins=40,
+        normalize=:probability,
+        color=:blue, alpha=0.5,
+        title="z distribution per species",
+        xlabel="z [m]",
+        ylabel="probability",
+        size=PLOT_SIZE,
+    )
+    histogram!(fig, ar_z_final,
+        label="Ar",
+        bins=40,
+        normalize=:probability,
+        color=:red, alpha=0.5,
+    )
+    savefig(fig, "$export_path/distrib.png")
+
+    # Q9.4
+    n_bins = 40
+    z_min = -domain.Lz / 2
+    z_max = domain.Lz / 2
+    dz = (z_max - z_min) / n_bins
+    V_bin = domain.Lx * domain.Ly * dz
+    z_centers = [z_min + (i - 0.5) * dz for i in 1:n_bins]
+
+    mv2_sum = zeros(n_bins)
+    p_bin = zeros(n_bins)
+    count_bin = zeros(Int, n_bins)
+
+    for mol in molecules
+        bin_idx = clamp(floor(Int, (mol.pos[3] - z_min) / dz) + 1, 1, n_bins)
+        v2 = sum(mol.velocity .^ 2)
+        mv2_sum[bin_idx] += mol.mass * v2
+        p_bin[bin_idx] += mol.mass * v2 / 3
+        count_bin[bin_idx] += 1
+    end
+
+    p_bin ./= V_bin
+    mv2_mean = [count_bin[i] > 0 ? mv2_sum[i] / count_bin[i] : 0.0 for i in 1:n_bins]
+    T_bin = mv2_mean ./ (3 * PHYSICS.k_g)
+
+    fig = plot(z_centers, mv2_mean,
+        label=false,
+        title="mv2 and postion in z",
+        xlabel="z [m]", ylabel="<mv²> [J]",
+        ylims=(minimum(mv2_mean) * 0.99, maximum(mv2_mean) * 1.01),
+        size=PLOT_SIZE,
+    )
+    savefig(fig, "$export_path/z-mv2.png")
+
+    fig = plot(z_centers, p_bin,
+        label=false,
+        title="pressure and postion in z",
+        xlabel="z [m]", ylabel="P [Pa]",
+        size=PLOT_SIZE,
+    )
+    savefig(fig, "$export_path/z-pressure.png")
+
+    fig = plot(z_centers, T_bin,
+        label=false,
+        title="temperature and postion in z",
+        xlabel="z [m]", ylabel="T [K]",
+        size=PLOT_SIZE,
+    )
+    savefig(fig, "$export_path/z-temp.png")
 
     println()
 end
 
 function launch_simulation()
-    # col_sim()
-    # single_col()
-    # he_sim()
-    # gravity_time(1, 26.85, MOL_TYPES[1])
-    he_sim_v2()
+    simple_collision()
+    single_collision()
+
+    he()
+    gravity_time(1, 26.85, MOL_TYPES[1])
+    he_with_g()
+    
+    he_ar()
 end

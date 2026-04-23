@@ -3,6 +3,7 @@ const MOL_TYPES = [
     Molecule(20.1797 * PHYSICS.u, 38e-12, zeros(3), zeros(3), "Ne"),
     Molecule(28.0134 * PHYSICS.u, 65e-12, zeros(3), zeros(3), "N2"),
     Molecule(31.9988 * PHYSICS.u, 60e-12, zeros(3), zeros(3), "O2"),
+    Molecule(39.948 * PHYSICS.u, 1.88e-10, zeros(3), zeros(3), "Ar"),
 ]
 
 function compute_next_pos!(mol, dt, g = PHYSICS.g)
