@@ -454,6 +454,40 @@ function he_ar()
     )
     savefig(fig, "$export_path/z-temp.png")
 
+    he_v = [m.velocity for m in molecules if m.formula == "He"]
+    ar_v = [m.velocity for m in molecules if m.formula == "Ar"]
+
+    he_vnorm = [norm(v) for v in he_v]
+    ar_vnorm = [norm(v) for v in ar_v]
+    he_vx = [v[1] for v in he_v]
+    he_vy = [v[2] for v in he_v]
+    he_vz = [v[3] for v in he_v]
+    ar_vx = [v[1] for v in ar_v]
+    ar_vy = [v[2] for v in ar_v]
+    ar_vz = [v[3] for v in ar_v]
+
+    n_bins = 40
+    function velo_subplot(he_data, ar_data, title_str, xlabel_str)
+        p = histogram(he_data,
+            label="He", bins=n_bins, normalize=:probability,
+            color=:blue, alpha=0.5,
+            title=title_str, xlabel=xlabel_str, ylabel="probability",
+        )
+        histogram!(p, ar_data,
+            label="Ar", bins=n_bins, normalize=:probability,
+            color=:red, alpha=0.5,
+        )
+        return p
+    end
+
+    p_norm = velo_subplot(he_vnorm, ar_vnorm, "||v|| distribution", "||v|| [m/s]")
+    p_vx = velo_subplot(he_vx, ar_vx, "vx distribution", "vx [m/s]")
+    p_vy = velo_subplot(he_vy, ar_vy, "vy distribution", "vy [m/s]")
+    p_vz = velo_subplot(he_vz, ar_vz, "vz distribution", "vz [m/s]")
+
+    fig = plot(p_norm, p_vx, p_vy, p_vz, layout=(2, 2), size=(PLOT_SIZE[1] * 2, PLOT_SIZE[2] * 2))
+    savefig(fig, "$export_path/velo_distrib.png")
+
     println()
 end
 
