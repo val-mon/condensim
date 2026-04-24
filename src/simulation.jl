@@ -457,13 +457,93 @@ function he_ar()
     println()
 end
 
-function launch_simulation()
-    simple_collision()
-    single_collision()
+function stability()
+    export_path = "export/stability"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
 
-    he()
-    gravity_time(1, 26.85, MOL_TYPES[1])
-    he_with_g()
-    
-    he_ar()
+    dt = 10e-14
+    duration = 4e-10
+    domain = Domain(1e-8, 1e-8, 1e-8)
+    n_mols = 400
+
+    t = 0.0
+    molecules = generate_mol(n_mols, [MOL_TYPES[1]], domain)
+
+    speed = 1400.0
+    for mol in molecules
+        mol.velocity = [rand([-1.0, 1.0]) * speed, 0.0, 0.0]
+    end
+
+    times = Float64[]
+    vx2_mean = Float64[]
+    vy2_mean = Float64[]
+    vz2_mean = Float64[]
+
+    while t < duration
+        vx2 = Float64[]
+        vy2 = Float64[]
+        vz2 = Float64[]
+        for mol in molecules
+            compute_next_pos!(mol, dt)
+            reflect_walls!(mol, domain)
+            push!(vx2, mol.velocity[1]^2)
+            push!(vy2, mol.velocity[2]^2)
+            push!(vz2, mol.velocity[3]^2)
+        end
+        resolve_collisions!(molecules)
+
+        push!(times, t)
+        push!(vx2_mean, mean(vx2))
+        push!(vy2_mean, mean(vy2))
+        push!(vz2_mean, mean(vz2))
+
+        t += dt
+    end
+
+    window = 20
+    treshold = 0.05
+
+    function rel_drift(values, W)
+        n = length(values)
+        out = fill(NaN, n)
+        for i in 2W:n
+            μ_prev = mean(values[i-2W+1:i-W])
+            μ_curr = mean(values[i-W+1:i])
+            out[i] = abs(μ_curr - μ_prev) / abs(μ_curr)
+        end
+        return out
+    end
+
+    drift_x = rel_drift(vx2_mean, window)
+    drift_y = rel_drift(vy2_mean, window)
+    drift_z = rel_drift(vz2_mean, window)
+
+    fig = plot(times, vx2_mean, label="<vx²>", title="velocities repartition",
+        xlabel="t [s]", ylabel="<v²> [m²/s²]", size=PLOT_SIZE)
+    plot!(fig, times, vy2_mean, label="<vy²>")
+    plot!(fig, times, vz2_mean, label="<vz²>")
+    savefig(fig, "$export_path/repartition.png")
+
+    fig = plot(times, drift_x, label="x", title="stability factor : sliding winodow",
+        xlabel="t [s]", ylabel="|Δμ|/μ", size=PLOT_SIZE)
+    plot!(fig, times, drift_y, label="y")
+    plot!(fig, times, drift_z, label="z")
+    hline!(fig, [treshold], label="seuil $(treshold)", linestyle=:dash)
+    savefig(fig, "$export_path/stability.png")
+
+    println()
+end
+
+function launch_simulation()
+    # simple_collision()
+    # single_collision()
+
+    # he()
+    # gravity_time(1, 26.85, MOL_TYPES[1])
+    # he_with_g()
+
+    # he_ar()
+
+    stability()
 end
