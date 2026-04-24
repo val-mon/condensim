@@ -392,7 +392,7 @@ function he_ar()
         bins=40,
         normalize=:probability,
         color=:blue, alpha=0.5,
-        title="z distribution per species",
+        title="z distribution per species (Maxwell–Boltzmann)",
         xlabel="z [m]",
         ylabel="probability",
         size=PLOT_SIZE,
@@ -480,7 +480,7 @@ function he_ar()
         return p
     end
 
-    p_norm = velo_subplot(he_vnorm, ar_vnorm, "||v|| distribution", "||v|| [m/s]")
+    p_norm = velo_subplot(he_vnorm, ar_vnorm, "||v|| distribution (Chi-squared)", "||v|| [m/s]")
     p_vx = velo_subplot(he_vx, ar_vx, "vx distribution", "vx [m/s]")
     p_vy = velo_subplot(he_vy, ar_vy, "vy distribution", "vy [m/s]")
     p_vz = velo_subplot(he_vz, ar_vz, "vz distribution", "vz [m/s]")
@@ -570,12 +570,12 @@ function stability()
 end
 
 function launch_simulation()
-    simple_collision()
-    single_collision()
+    # simple_collision()
+    # single_collision()
 
-    he()
-    gravity_time(1, 26.85, MOL_TYPES[1])
-    he_with_g()
+    # he()
+    # gravity_time(1, 26.85, MOL_TYPES[1])
+    # he_with_g()
 
     he_ar()
 
