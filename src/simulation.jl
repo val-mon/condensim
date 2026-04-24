@@ -501,7 +501,7 @@ function stability()
         t += dt
     end
 
-    window = 20
+    window = 100
     treshold = 0.05
 
     function rel_drift(values, W)
@@ -525,7 +525,7 @@ function stability()
     plot!(fig, times, vz2_mean, label="<vz²>")
     savefig(fig, "$export_path/repartition.png")
 
-    fig = plot(times, drift_x, label="x", title="stability factor : sliding winodow",
+    fig = plot(times, drift_x, label="x", title="stability factor : sliding window",
         xlabel="t [s]", ylabel="|Δμ|/μ", size=PLOT_SIZE)
     plot!(fig, times, drift_y, label="y")
     plot!(fig, times, drift_z, label="z")
@@ -536,14 +536,14 @@ function stability()
 end
 
 function launch_simulation()
-    # simple_collision()
-    # single_collision()
+    simple_collision()
+    single_collision()
 
-    # he()
-    # gravity_time(1, 26.85, MOL_TYPES[1])
-    # he_with_g()
+    he()
+    gravity_time(1, 26.85, MOL_TYPES[1])
+    he_with_g()
 
-    # he_ar()
+    he_ar()
 
     stability()
 end

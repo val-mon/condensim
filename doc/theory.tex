@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage{amsmath,amssymb,latexsym}
+\usepackage{hyperref}
 
 % margins
 \addtolength{\textwidth}{1.0in}
@@ -183,5 +184,29 @@
     C'est proportionnel à l'énergie cinétique moyenne des particules.\\
     Elle tient compte du fait que He et Ar n'ont pas la même masse.\\
     Unité : $\text{kg} \cdot \text{m}^2/\text{s}^2 = \text{Joules}$
+
+\section*{Question 11.1}
+    C'est la distribution Maxwell–Boltzmann : \url{https://en.wikipedia.org/wiki/Maxwell%E2%80%93Boltzmann_distribution}
+
+    Le paramètre $a$ (parfois noté $\alpha$) est le paramètre d'échelle (\textit{scale parameter}).
+    Il vaut :
+    \[
+        a = \sqrt{\dfrac{k_B\, T}{m}}
+    \]
+
+    où :
+    \begin{itemize}
+        \item $k_B$ = constante de Boltzmann
+        \item $T$ = température
+        \item $m$ = masse de la particule
+    \end{itemize}
+
+    Il n'y a donc que la masse et la température qui influence la distribution:
+    Il fixe l'échelle des vitesses dans le gaz :
+        Si T ↑ alors a ↑ car les particules vont plus vite (distribution décalée vers la droite)
+        Si m ↑ alors a ↓ car les particules sont plus lourdes et plus lentes (distribution resserrée vers 0)
+
+\section*{Question 11.2}
+    La pression suivra la même distribution.
 
 \end{document}
