@@ -186,27 +186,67 @@
     Unité : $\text{kg} \cdot \text{m}^2/\text{s}^2 = \text{Joules}$
 
 \section*{Question 11.1}
-    C'est la distribution Maxwell–Boltzmann : \url{https://en.wikipedia.org/wiki/Maxwell%E2%80%93Boltzmann_distribution}
+    C'est la distribution de Boltzmann (loi barométrique), avec $U(z) = mgz$ :
+    $$P(z) \propto \exp\!\left(-\frac{mgz}{k_B T}\right)$$
 
-    Le paramètre $a$ (parfois noté $\alpha$) est le paramètre d'échelle (\textit{scale parameter}).
-    Il vaut :
-    \[
-        a = \sqrt{\dfrac{k_B\, T}{m}}
-    \]
-
-    où :
+    Paramètres physiques influençant la forme :
     \begin{itemize}
-        \item $k_B$ = constante de Boltzmann
-        \item $T$ = température
-        \item $m$ = masse de la particule
+        \item $m$ — masse de la particule (plus lourd → distribution resserrée vers le bas)
+        \item $T$ — température (plus chaud → distribution plus étalée en altitude)
+        \item $g$ — accélération gravitationnelle
     \end{itemize}
 
-    Il n'y a donc que la masse et la température qui influence la distribution:
-    Il fixe l'échelle des vitesses dans le gaz :
-        Si T ↑ alors a ↑ car les particules vont plus vite (distribution décalée vers la droite)
-        Si m ↑ alors a ↓ car les particules sont plus lourdes et plus lentes (distribution resserrée vers 0)
-
 \section*{Question 11.2}
-    La pression suivra la même distribution.
+    La densité $\rho(z)$ et la pression $P(z)$ suivent la même loi exponentielle,
+    car $P = nk_BT$ et $n(z) \propto \exp(-mgz/k_BT)$.
+
+\section*{Question 13.1}
+    Les composantes tangentielles $v_x$ et $v_y$ (parallèles à la paroi) suivent une distribution normale centrée $\mathcal{N}(0,\sigma)$.
+    En effet, à l'équilibre, chaque composante de vitesse est indépendante et distribuée selon Maxwell–Boltzmann, ce qui donne une gaussienne pour chaque direction.\\
+
+    La composante normale $v_z$ suit en revanche une distribution de Rayleigh.
+    Cela vient du fait que la paroi ne réémet que les particules qui se dirigent \emph{vers l'intérieur} du domaine ($v_z > 0$ ou $v_z < 0$ selon la paroi).
+    Le flux de particules frappant la paroi est proportionnel à $v_z \cdot f_{\text{MB}}(v_z)$, ce qui, après renormalisation sur $v_z > 0$, donne une distribution de Rayleigh :
+    $$f(v_z) = \frac{v_z}{\sigma^2} e^{-v_z^2 / (2\sigma^2)}, \quad v_z > 0$$
+    avec $\sigma = \sqrt{k_B T / m}$.
+
+\section*{Question 14.1}
+    Le potentiel de Lennard-Jones est :
+    $$U(r) = 4\varepsilon \left[ \left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^{6} \right]$$
+
+    La force exercée par la molécule $j$ sur la molécule $i$ est $\vec{F}_{ij} = -\nabla_{\vec{r}_i} U(r)$.
+
+    Calcul du gradient (avec $r = \|\vec{r}_j - \vec{r}_i\|$ et $\hat{n} = \vec{r}_{ij}/r$) :
+    $$\frac{\partial r}{\partial \vec{r}_i} = -\frac{\vec{r}_{ij}}{r}$$
+
+    $$\frac{dU}{dr} = 4\varepsilon \left[ -\frac{12\sigma^{12}}{r^{13}} + \frac{6\sigma^{6}}{r^{7}} \right] = \frac{24\varepsilon}{r} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right]$$
+
+    Donc :
+    $$\vec{F}_{ij} = -\frac{dU}{dr} \cdot \frac{\partial r}{\partial \vec{r}_i} = \frac{dU}{dr} \cdot \frac{\vec{r}_{ij}}{r} = \frac{24\varepsilon}{r^2} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right] \vec{r}_{ij}$$
+
+    À courte portée ($r < 2^{1/6}\sigma$) : la force est dans la direction $-\vec{r}_{ij}$ (répulsive). \\
+    À longue portée ($r > 2^{1/6}\sigma$) : la force est dans la direction $+\vec{r}_{ij}$ (attractive).
+
+\section*{Question 14.2}
+    \begin{itemize}
+        \item $r \ll \sigma$ : le terme en $r^{-12}$ domine. La force est \textbf{très fortement répulsive} (cœur dur), elle diverge rapidement.
+        \item $r \approx \sigma$ : voisinage de l'équilibre à $r_{\min} = 2^{1/6}\sigma$. La force est nulle à l'équilibre et change de signe autour.
+        \item $r \gg \sigma$ : les deux termes deviennent négligeables, la force tend vers \textbf{zéro} (les molécules n'interagissent plus).
+    \end{itemize}
+
+\section*{Question 14.4}
+    En 2D, une molécule possède \textbf{2 degrés de liberté} translationnels ($v_x$ et $v_y$).
+    Le théorème d'équipartition de l'énergie donne $\frac{1}{2}k_B T$ par degré de liberté, soit :
+    $$\frac{1}{2} m \langle v^2 \rangle = \frac{2}{2} k_B T = k_B T$$
+    $$\Rightarrow T_{2D} = \frac{m \langle v^2 \rangle}{2 k_B}$$
+
+    En 3D, on aurait un facteur 3 au dénominateur. Ici le facteur est \textbf{2} car on ne considère que les composantes $v_x$ et $v_y$.
+
+\section*{Question 14.10}
+    \begin{itemize}
+        \item \textbf{Gaz} ($T = 40$ K) : les molécules sont distribuées de façon homogène dans tout le domaine, leurs trajectoires sont désordonnées. Les interactions LJ sont trop faibles pour créer de la cohésion.
+        \item \textbf{Liquide} (transition) : des agrégats locaux commencent à se former. Les molécules restent mobiles mais montrent une corrélation à courte portée.
+        \item \textbf{Solide} ($T = 10$ K) : les molécules s'organisent en une structure ordonnée (maille cristalline triangulaire). Elles vibrent autour de positions fixes.
+    \end{itemize}
 
 \end{document}

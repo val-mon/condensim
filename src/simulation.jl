@@ -1,40 +1,9 @@
 const PLOT_SIZE = (800, 800)
 
-function simple_collision()
-    export_path = "export/simple_collision"
-    isdir(export_path) && rm(export_path, recursive=true)
-    mkpath(export_path)
 
-    dt = 1e-13
-    duration = 40e-12
-    domain = Domain(2e-9, 2e-9, 2e-9)
-    lims = (-domain.Lx / 2, domain.Lx / 2)
-    n_mols = 15
-
-    t = 0.0
-    molecules = generate_mol(n_mols, [MOL_TYPES[1]], domain)
-
-    anim = @animate while t < duration
-        p = plot3d(title="t = $(round(t*1e12, digits=2)) [ps]", xlims=lims, ylims=lims, zlims=lims, size=PLOT_SIZE)
-
-        for mol in molecules
-            scatter3d!(p, [mol.pos[1]], [mol.pos[2]], [mol.pos[3]], label=false)
-            compute_next_pos!(mol, dt)
-            reflect_walls!(mol, domain)
-        end
-
-        resolve_collisions!(molecules)
-
-        t += dt
-    end
-
-    gif(anim, "$export_path/sim.gif")
-end
-
+# Q4.2 : cas de test unitaires pour la collision élastique
 function single_collision()
-    export_path = "export/single_collision"
-    isdir(export_path) && rm(export_path, recursive=true)
-    mkpath(export_path)
+    export_path = "export/q04"
 
     dt = 1e-13
     duration = 10e-12
@@ -101,12 +70,47 @@ function single_collision()
             t += dt
         end
 
-        gif(anim, "$export_path/$(i).gif")
+        gif(anim, "$export_path/single_$(i).gif")
     end
 end
 
+
+# Q4.4 : simulation multi-molécules pour valider l'algorithme de collision
+function simple_collision()
+    export_path = "export/q04"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
+    dt = 1e-13
+    duration = 40e-12
+    domain = Domain(2e-9, 2e-9, 2e-9)
+    lims = (-domain.Lx / 2, domain.Lx / 2)
+    n_mols = 15
+
+    t = 0.0
+    molecules = generate_mol(n_mols, [MOL_TYPES[1]], domain)
+
+    anim = @animate while t < duration
+        p = plot3d(title="t = $(round(t*1e12, digits=2)) [ps]", xlims=lims, ylims=lims, zlims=lims, size=PLOT_SIZE)
+
+        for mol in molecules
+            scatter3d!(p, [mol.pos[1]], [mol.pos[2]], [mol.pos[3]], label=false)
+            compute_next_pos!(mol, dt)
+            reflect_walls!(mol, domain)
+        end
+
+        resolve_collisions!(molecules)
+
+        t += dt
+    end
+
+    gif(anim, "$export_path/multi_sim.gif")
+end
+
+
+# Q7.1 – Q7.5 : première simulation He — animation, vitesse moyenne, α (T), β (P)
 function he()
-    export_path = "export/he"
+    export_path = "export/q07"
     isdir(export_path) && rm(export_path, recursive=true)
     mkpath(export_path)
 
@@ -126,6 +130,7 @@ function he()
     betas = []
     pos_z_all = []
 
+    # Q7.1 — animation de la simulation
     anim = @animate while t < duration
         p = plot3d(title="t = $(round(t*1e12, digits=2)) [ps]", xlims=lims, ylims=lims, zlims=lims, size=PLOT_SIZE)
 
@@ -159,22 +164,21 @@ function he()
         t += dt
     end
 
-    # save the simulation animation
     gif(anim, "$export_path/_sim.gif")
 
-    # display velocity mean during time simulation
+    # Q7.2 — évolution de la vitesse moyenne
     fig = plot(times, v_means, label=false, title="velocity mean", size=PLOT_SIZE)
     savefig(fig, "$export_path/velo_mean.png")
 
-    # display alpha during time simulation
+    # Q7.4 — α = m<v²>/(3kB) → température
     fig = plot(times, alphas, label=false, title="alpha (temperature)", ylims=(minimum(alphas) * 0.99, maximum(alphas) * 1.01), size=PLOT_SIZE)
     savefig(fig, "$export_path/alpha.png")
 
-    # display beta during time simulation
+    # Q7.5 — β = Nm<v²>/(3V) → pression
     fig = plot(times, betas, label=false, title="beta (pressure)", ylims=(minimum(betas) * 0.99, maximum(betas) * 1.01), size=PLOT_SIZE)
     savefig(fig, "$export_path/beta.png")
 
-    # display beginning distribution of mean during simulation
+    # Q7.3 — distribution de la magnitude des vitesses au 10e pas
     fig = histogram(
         velos_norms[10],
         label=false,
@@ -186,7 +190,7 @@ function he()
     )
     savefig(fig, "$export_path/velo_10th.png")
 
-    # display ending distribution of mean during simulation
+    # Q7.3 — distribution de la magnitude des vitesses au dernier pas
     fig = histogram(
         last(velos_norms),
         label=false,
@@ -223,25 +227,36 @@ function he()
         )
     end
     gif(anim, "$export_path/pos_z.gif")
-
-    println()
 end
 
-function gravity_time(d, temp, mol)
+
+# Q8.3 : calcul du temps de parcours d'une molécule sous gravité seule
+function gravity_time(d=1, temp=26.85, mol=MOL_TYPES[1])
+    export_path = "export/q08"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
     # define gravity velocity
     v = (mol.mass * PHYSICS.g * PHYSICS.D) / (PHYSICS.k_g * temp)
 
     # compute time in seconds
     s = d * 1 / v
-    println("t [s]    : ", s)
 
     # convert to year
     h = s / 60 / 24 / 365
-    println("t [year] : ", h)
+
+    # save res to txt
+    open("$export_path/gravity_time.txt", "w") do io
+        println(io, "t [s]    : ", s)
+        println(io, "t [year] : ", h)
+    end
 end
 
+
+# Q8.4 : simulation He avec gravité exagérée — distribution z et pression
+# Q8.6 : profil de pression en fonction de z
 function he_with_g()
-    export_path = "export/he_with_g"
+    export_path = "export/q08"
     isdir(export_path) && rm(export_path, recursive=true)
     mkpath(export_path)
 
@@ -277,7 +292,7 @@ function he_with_g()
 
     n_bins = 40
 
-    # posz distribution from final state
+    # Q8.4 — distribution de probabilité de présence en z (état final)
     fig = histogram(
         last(pos_z_all),
         label=false,
@@ -290,7 +305,7 @@ function he_with_g()
     )
     savefig(fig, "$export_path/posz.png")
 
-    # pressure profile from final state
+    # Q8.6 — profil de pression en fonction de z
     z_min = -domain.Lz / 2
     z_max = domain.Lz / 2
     dz = (z_max - z_min) / n_bins
@@ -317,12 +332,14 @@ function he_with_g()
         size=PLOT_SIZE,
     )
     savefig(fig, "$export_path/pressure_z.png")
-
-    println()
 end
 
+
+# Q9.1 : simulation He+Ar avec gravité — animation 3D différenciant les espèces
+# Q9.2 : distribution de présence en z par espèce
+# Q9.4 : <mv²>, pression et température en fonction de z
 function he_ar()
-    export_path = "export/he_ar"
+    export_path = "export/q09"
     isdir(export_path) && rm(export_path, recursive=true)
     mkpath(export_path)
 
@@ -379,10 +396,10 @@ function he_ar()
         t += dt
     end
 
-    # Q9.1
+    # Q9.1 — animation différenciant He (bleu) et Ar (rouge)
     gif(anim, "$export_path/_sim.gif")
 
-    # Q9.2
+    # Q9.2 — distribution de présence en z par espèce
     he_z_final = [m.pos[3] for m in molecules if m.formula == "He"]
     ar_z_final = [m.pos[3] for m in molecules if m.formula == "Ar"]
 
@@ -405,7 +422,7 @@ function he_ar()
     )
     savefig(fig, "$export_path/distrib.png")
 
-    # Q9.4
+    # Q9.4 — <mv²>, pression et température en fonction de z
     n_bins = 40
     z_min = -domain.Lz / 2
     z_max = domain.Lz / 2
@@ -480,19 +497,19 @@ function he_ar()
         return p
     end
 
-    p_norm = velo_subplot(he_vnorm, ar_vnorm, "||v|| distribution (Chi-squared)", "||v|| [m/s]")
+    p_norm = velo_subplot(he_vnorm, ar_vnorm, "||v|| distribution (Chi)", "||v|| [m/s]")
     p_vx = velo_subplot(he_vx, ar_vx, "vx distribution", "vx [m/s]")
     p_vy = velo_subplot(he_vy, ar_vy, "vy distribution", "vy [m/s]")
     p_vz = velo_subplot(he_vz, ar_vz, "vz distribution", "vz [m/s]")
 
     fig = plot(p_norm, p_vx, p_vy, p_vz, layout=(2, 2), size=(PLOT_SIZE[1] * 2, PLOT_SIZE[2] * 2))
     savefig(fig, "$export_path/velo_distrib.png")
-
-    println()
 end
 
+
+# Q10.2 : critère de stabilité — sliding window sur <vx²>, <vy²>, <vz²>
 function stability()
-    export_path = "export/stability"
+    export_path = "export/q10"
     isdir(export_path) && rm(export_path, recursive=true)
     mkpath(export_path)
 
@@ -542,8 +559,8 @@ function stability()
         n = length(values)
         out = fill(NaN, n)
         for i in 2W:n
-            μ_prev = mean(values[i-2W+1:i-W])
-            μ_curr = mean(values[i-W+1:i])
+            μ_prev = mean(values[(i-2W+1):(i-W)])
+            μ_curr = mean(values[(i-W+1):i])
             out[i] = abs(μ_curr - μ_prev) / abs(μ_curr)
         end
         return out
@@ -565,19 +582,349 @@ function stability()
     plot!(fig, times, drift_z, label="z")
     hline!(fig, [treshold], label="seuil $(treshold)", linestyle=:dash)
     savefig(fig, "$export_path/stability.png")
-
-    println()
 end
 
+
+# Q12.2 : He 400 atomes concentrés dans 1/8 du domaine — entropie de Shannon H(t)
+function shannon_half_domain()
+    export_path = "export/q12"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
+    dt = 1e-14
+    duration = 5e-11
+    Lxyz = 1e-8
+    domain = Domain(Lxyz, Lxyz, Lxyz)
+    n_mols = 400
+    speed = 1400.0
+    mol_type = MOL_TYPES[1]   # He
+
+    # positions initiales dans [-5e-9, 0]³ (1/8 du domaine)
+    molecules = Molecule[]
+    while length(molecules) < n_mols
+        mol = copy(mol_type)
+        v = 2 .* rand(3) .- 1
+        mol.velocity = speed .* v ./ norm(v)
+        mol.pos = [-Lxyz / 2 + rand() * Lxyz / 2,
+            -Lxyz / 2 + rand() * Lxyz / 2,
+            -Lxyz / 2 + rand() * Lxyz / 2]
+        push!(molecules, mol)
+    end
+
+    t = 0.0
+    times = Float64[]
+    entropies = Float64[]
+
+    while t < duration
+        for mol in molecules
+            compute_next_pos!(mol, dt, 0.0)   # sans gravité
+            reflect_walls!(mol, domain)
+        end
+        resolve_collisions!(molecules)
+
+        push!(times, t)
+        push!(entropies, total_entropy(molecules, domain))
+
+        t += dt
+    end
+
+    fig = plot(times, entropies,
+        label=false, title="Entropie de Shannon H(X,Y,Z,<v²>)",
+        xlabel="t [s]", ylabel="H [bits]", size=PLOT_SIZE)
+    savefig(fig, "$export_path/entropy_half.png")
+    return molecules, domain, times, entropies
+end
+
+
+# Q12.3 : ouverture d'une paroi — domaine étendu sur x, nouvelle croissance de H
+function shannon_open_wall()
+    export_path = "export/q12"
+    isdir(export_path) || mkpath(export_path)
+
+    molecules, domain_small, times1, entropies1 = shannon_half_domain()
+
+    dt = 1e-14
+    n_extra = 5000
+    domain_big = Domain(2 * domain_small.Lx, domain_small.Ly, domain_small.Lz)
+
+    times2 = Float64[]
+    entropies2 = Float64[]
+    t = times1[end] + dt
+
+    for _ in 1:n_extra
+        for mol in molecules
+            compute_next_pos!(mol, dt, 0.0)
+            reflect_walls!(mol, domain_big)
+        end
+        resolve_collisions!(molecules)
+
+        push!(times2, t)
+        push!(entropies2, total_entropy(molecules, domain_big))
+
+        t += dt
+    end
+
+    all_times = vcat(times1, times2)
+    all_entropies = vcat(entropies1, entropies2)
+    t_open = times1[end]
+
+    fig = plot(all_times, all_entropies,
+        label=false, title="Entropie — ouverture de paroi",
+        xlabel="t [s]", ylabel="H [bits]", size=PLOT_SIZE)
+    vline!(fig, [t_open], label="ouverture paroi", linestyle=:dash, color=:red)
+    savefig(fig, "$export_path/entropy_open_wall.png")
+end
+
+
+# Q13.3 : He 500 atomes, parois z thermiques (T_top=700K, T_bot=300K)
+# Q13.4 : évolution de l'entropie au cours du temps
+# Q13.5 : profil de température T(z) à la fin de la simulation
+function temp_gradient_sim()
+    export_path = "export/q13"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
+    dt = 1e-14
+    duration = 1e-10
+    domain = Domain(4e-9, 4e-9, 1e-8)
+    n_mols = 500
+    T_top = 700.0
+    T_bot = 300.0
+
+    t = 0.0
+    molecules = generate_mol(n_mols, [MOL_TYPES[1]], domain; speed=1400.0)
+
+    times = Float64[]
+    entropies = Float64[]
+
+    while t < duration
+        for mol in molecules
+            compute_next_pos!(mol, dt, 0.0)            # sans gravité
+            reflect_thermal_walls!(mol, domain, T_top, T_bot)
+        end
+        resolve_collisions!(molecules)
+
+        push!(times, t)
+        push!(entropies, total_entropy(molecules, domain))
+
+        t += dt
+    end
+
+    # Q13.4 — entropie au cours du temps
+    fig = plot(times, entropies,
+        label=false, title="Entropie — gradient de température",
+        xlabel="t [s]", ylabel="H [bits]", size=PLOT_SIZE)
+    savefig(fig, "$export_path/entropy.png")
+
+    # Q13.5 — profil T(z) final
+    n_bins = 20
+    z_min = -domain.Lz / 2
+    z_max = domain.Lz / 2
+    dz = (z_max - z_min) / n_bins
+
+    count_bin = zeros(Int, n_bins)
+    mv2_bin = zeros(Float64, n_bins)
+
+    for mol in molecules
+        idx = clamp(floor(Int, (mol.pos[3] - z_min) / dz) + 1, 1, n_bins)
+        v2 = mol.velocity[1]^2 + mol.velocity[2]^2 + mol.velocity[3]^2
+        mv2_bin[idx] += mol.mass * v2
+        count_bin[idx] += 1
+    end
+
+    z_centers = [z_min + (i - 0.5) * dz for i in 1:n_bins]
+    T_profile = [count_bin[i] > 0 ? mv2_bin[i] / count_bin[i] / (3 * PHYSICS.k_g) : 0.0
+                 for i in 1:n_bins]
+
+    fig = plot(z_centers, T_profile,
+        label=false, title="Profil de température T(z)",
+        xlabel="z [m]", ylabel="T [K]", size=PLOT_SIZE)
+    hline!(fig, [T_bot], label="T_bot=$(T_bot)K", linestyle=:dash, color=:blue)
+    hline!(fig, [T_top], label="T_top=$(T_top)K", linestyle=:dash, color=:red)
+    savefig(fig, "$export_path/T_vs_z.png")
+end
+
+
+# Q14.7 : boucle principale LJ — forces → Euler → réflexion → velocity rescaling
+# Q14.8 : animation 2D (markersize=13)
+# Q14.9 : comparer T_ref=10K (solide) et T_ref=40K (gaz/liquide)
+function neon_lj_sim(T_ref=10.0, export_path="export/q14")
+    label = string(Int(round(T_ref)))
+
+    sigma = 2.74e-10
+    epsilon = 4.91511044e-22
+    dt = 1e-15
+    duration = 5e-11
+    Lx = Ly = 1e-8
+    n_mols = 100
+
+    ne_type = MOL_TYPES[findfirst(m -> m.formula == "Ne", MOL_TYPES)]
+    molecules = generate_mol_2d_lj(n_mols, ne_type, Lx, Ly, sigma, T_ref)
+
+    t = 0.0
+    step = 0
+    anim_every = max(1, floor(Int, duration / dt / 200))
+    anim = Animation()
+    lims = (-Lx / 2, Lx / 2)
+
+    while t < duration
+        # Q14.7.1 — calcul des forces LJ pour toutes les molécules
+        forces = [lj_total_force(mol, molecules, sigma, epsilon) for mol in molecules]
+
+        # Q14.7.2 — intégration Euler explicite
+        for (mol, F) in zip(molecules, forces)
+            mol.velocity[1] += F[1] / mol.mass * dt
+            mol.velocity[2] += F[2] / mol.mass * dt
+            mol.pos[1] += mol.velocity[1] * dt
+            mol.pos[2] += mol.velocity[2] * dt
+        end
+
+        # Q14.7.3 — condition de bord (réflexion spéculaire 2D)
+        for mol in molecules
+            reflect_walls_2d!(mol, Lx, Ly)
+        end
+
+        # Q14.7.4 — contrôle de température (velocity rescaling)
+        rescale_velocities!(molecules, T_ref)
+
+        # Q14.8 — frame d'animation
+        if step % anim_every == 0
+            p = scatter(
+                [m.pos[1] for m in molecules],
+                [m.pos[2] for m in molecules],
+                markersize=13, label=false,
+                title="Ne LJ — T_ref=$(T_ref) K — t=$(round(t*1e12, digits=1)) ps",
+                xlims=lims, ylims=lims, size=PLOT_SIZE,
+            )
+            frame(anim, p)
+        end
+
+        step += 1
+        t += dt
+    end
+
+    gif(anim, "$export_path/T$(label).gif")
+end
+
+
+# Q15.2 : simulation de condensation solide Ne LJ (T décroît de 40K à 10K)
+# Q15.3 : animation sur les 3 phases (gazeuse, transition, solide)
+# Q15.4 : distribution spatiale de probabilité pour chaque phase
+function condensation_sim()
+    export_path = "export/q15"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+
+    sigma = 2.74e-10
+    epsilon = 4.91511044e-22
+    dt = 1e-15
+    Lx = Ly = 5e-9    # boîte resserrée (vs 1e-8) pour densifier et favoriser la nucléation
+    n_mols = 100
+    T1 = 40.0
+    T2 = 10.0
+    N1 = 15_000
+    N2 = 15_000
+    N_total = N1 + N2 + N2    # N2 pas supplémentaires à T2 après la transition
+
+    ne_type = MOL_TYPES[findfirst(m -> m.formula == "Ne", MOL_TYPES)]
+    molecules = generate_mol_2d_lj(n_mols, ne_type, Lx, Ly, sigma, T1)
+
+    anim_every = max(1, N_total ÷ 200)
+    anim = Animation()
+    lims = (-Lx / 2, Lx / 2)
+
+    # snapshots pour Q15.4 (fin de chaque phase)
+    snap_gas = nothing
+    snap_trans = nothing
+    snap_solid = nothing
+
+    for step in 1:N_total
+        # Q15.1 — température cible selon la phase
+        T_ref = target_temperature(step, T1, N1, T2, N2)
+
+        forces = [lj_total_force(mol, molecules, sigma, epsilon) for mol in molecules]
+
+        for (mol, F) in zip(molecules, forces)
+            mol.velocity[1] += F[1] / mol.mass * dt
+            mol.velocity[2] += F[2] / mol.mass * dt
+            mol.pos[1] += mol.velocity[1] * dt
+            mol.pos[2] += mol.velocity[2] * dt
+        end
+
+        for mol in molecules
+            reflect_walls_2d!(mol, Lx, Ly)
+        end
+
+        rescale_velocities!(molecules, T_ref)
+
+        # Q15.3 — frames d'animation
+        if step % anim_every == 0
+            T_cur = round(T_ref, digits=1)
+            phase = step <= N1 ? "gaz" : (step <= N1 + N2 ? "transition" : "solide")
+            p = scatter(
+                [m.pos[1] for m in molecules],
+                [m.pos[2] for m in molecules],
+                markersize=13, label=false,
+                title="Condensation Ne — $phase — T=$(T_cur) K — step=$step",
+                xlims=lims, ylims=lims, size=PLOT_SIZE,
+            )
+            frame(anim, p)
+        end
+
+        # Q15.4 — capture des positions à la fin de chaque phase
+        if step == N1
+            snap_gas = [(m.pos[1], m.pos[2]) for m in molecules]
+        elseif step == N1 + N2
+            snap_trans = [(m.pos[1], m.pos[2]) for m in molecules]
+        elseif step == N_total
+            snap_solid = [(m.pos[1], m.pos[2]) for m in molecules]
+        end
+    end
+
+    # Q15.3 — animation complète
+    gif(anim, "$export_path/sim.gif")
+
+    # Q15.4 — distributions spatiales par phase
+    edges = range(-Lx / 2, Lx / 2, length=21)   # bins calés sur le domaine (échelle commune aux 3 phases)
+    function plot_spatial_dist(snap, title_str, filename)
+        xs = first.(snap)
+        ys = last.(snap)
+        p = histogram2d(xs, ys,
+            bins=(edges, edges),
+            color=:viridis,                  # colormap perceptuelle : contraste net amas/vide
+            normalize=:probability,
+            clims=(0.0, 0.06),               # plafond fixe → un amas dense ressort en jaune
+            title=title_str, xlabel="x [m]", ylabel="y [m]",
+            xlims=lims, ylims=lims, size=PLOT_SIZE)
+        savefig(p, "$export_path/$filename")
+    end
+
+    snap_gas !== nothing && plot_spatial_dist(snap_gas, "Distribution spatiale — phase gazeuse", "distrib_gaz.png")
+    snap_trans !== nothing && plot_spatial_dist(snap_trans, "Distribution spatiale — transition", "distrib_transition.png")
+    snap_solid !== nothing && plot_spatial_dist(snap_solid, "Distribution spatiale — phase solide", "distrib_solide.png")
+end
+
+
+# Q14.9 : compare T=10K (solide) et T=40K (gaz/liquide) dans le même dossier
+function neon_lj()
+    export_path = "export/q14"
+    isdir(export_path) && rm(export_path, recursive=true)
+    mkpath(export_path)
+    neon_lj_sim(10.0, export_path)
+    neon_lj_sim(40.0, export_path)
+end
+
+
 function launch_simulation()
-    # simple_collision()
-    # single_collision()
-
-    # he()
-    # gravity_time(1, 26.85, MOL_TYPES[1])
-    # he_with_g()
-
-    he_ar()
-
-    stability()
+    simple_collision()      # Q4.4
+    single_collision()      # Q4.2
+    he()                    # Q7.1–Q7.5
+    gravity_time()          # Q8.3
+    he_with_g()             # Q8.4, Q8.6
+    he_ar()                 # Q9.1, Q9.2, Q9.4
+    stability()             # Q10.2
+    shannon_open_wall()     # Q12.2 + Q12.3
+    temp_gradient_sim()     # Q13.3, Q13.4, Q13.5
+    neon_lj()               # Q14.7–Q14.9
+    condensation_sim()      # Q15.2, Q15.3, Q15.4
 end
