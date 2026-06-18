@@ -211,36 +211,35 @@
     avec $\sigma = \sqrt{k_B T / m}$.
 
 \section*{Question 14.1}
+    $\sigma$ est la distance à laquelle le potentiel s'annule ($U(\sigma) = 0$).
+    C'est une constante mesurée, donnée et propre à chaque gaz, tout comme $\varepsilon$.
+
+
     Le potentiel de Lennard-Jones est :
     $$U(r) = 4\varepsilon \left[ \left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^{6} \right]$$
 
-    La force exercée par la molécule $j$ sur la molécule $i$ est $\vec{F}_{ij} = -\nabla_{\vec{r}_i} U(r)$.
+    La force est l'opposé du gradient du potentiel : $\vec{F}_{ij} = -\nabla_{\vec{r}_i} U(r)$, avec $r = \|\vec{r}_{ij}\|$ et $\vec{r}_{ij} = \vec{r}_j - \vec{r}_i$.
 
-    Calcul du gradient (avec $r = \|\vec{r}_j - \vec{r}_i\|$ et $\hat{n} = \vec{r}_{ij}/r$) :
-    $$\frac{\partial r}{\partial \vec{r}_i} = -\frac{\vec{r}_{ij}}{r}$$
+    On dérive le potentiel :
+    $$\frac{dU}{dr} = \frac{24\varepsilon}{r} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right]$$
 
-    $$\frac{dU}{dr} = 4\varepsilon \left[ -\frac{12\sigma^{12}}{r^{13}} + \frac{6\sigma^{6}}{r^{7}} \right] = \frac{24\varepsilon}{r} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right]$$
+    En l'orientant le long de $\vec{r}_{ij}$, on obtient :
+    $$\vec{F}_{ij} = \frac{24\varepsilon}{r^2} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right] \vec{r}_{ij}$$
 
-    Donc :
-    $$\vec{F}_{ij} = -\frac{dU}{dr} \cdot \frac{\partial r}{\partial \vec{r}_i} = \frac{dU}{dr} \cdot \frac{\vec{r}_{ij}}{r} = \frac{24\varepsilon}{r^2} \left[ \left(\frac{\sigma}{r}\right)^6 - 2\left(\frac{\sigma}{r}\right)^{12} \right] \vec{r}_{ij}$$
-
-    À courte portée ($r < 2^{1/6}\sigma$) : la force est dans la direction $-\vec{r}_{ij}$ (répulsive). \\
-    À longue portée ($r > 2^{1/6}\sigma$) : la force est dans la direction $+\vec{r}_{ij}$ (attractive).
+    Le crochet donne le signe : répulsif pour $r < 2^{1/6}\sigma$, attractif pour $r > 2^{1/6}\sigma$.
 
 \section*{Question 14.2}
     \begin{itemize}
-        \item $r \ll \sigma$ : le terme en $r^{-12}$ domine. La force est \textbf{très fortement répulsive} (cœur dur), elle diverge rapidement.
-        \item $r \approx \sigma$ : voisinage de l'équilibre à $r_{\min} = 2^{1/6}\sigma$. La force est nulle à l'équilibre et change de signe autour.
-        \item $r \gg \sigma$ : les deux termes deviennent négligeables, la force tend vers \textbf{zéro} (les molécules n'interagissent plus).
+        \item $r \ll \sigma$ : force \textbf{très répulsive} (cœur dur), les atomes se repoussent fort.
+        \item $r \approx \sigma$ : zone de transition. À $r = \sigma$ le \emph{potentiel} s'annule mais la force est encore légèrement \textbf{répulsive} ; elle ne s'annule (équilibre) qu'un peu plus loin, à $r_{\min} = 2^{1/6}\sigma$, puis devient \textbf{attractive} au-delà.
+        \item $r \gg \sigma$ : force \textbf{quasi nulle}, les molécules n'interagissent plus.
     \end{itemize}
 
 \section*{Question 14.4}
-    En 2D, une molécule possède \textbf{2 degrés de liberté} translationnels ($v_x$ et $v_y$).
-    Le théorème d'équipartition de l'énergie donne $\frac{1}{2}k_B T$ par degré de liberté, soit :
-    $$\frac{1}{2} m \langle v^2 \rangle = \frac{2}{2} k_B T = k_B T$$
-    $$\Rightarrow T_{2D} = \frac{m \langle v^2 \rangle}{2 k_B}$$
+    En 2D, une molécule a \textbf{2 degrés de liberté} ($v_x$, $v_y$). L'équipartition donne $\frac{1}{2}k_B T$ par degré de liberté :
+    $$\frac{1}{2} m \langle v^2 \rangle = k_B T \quad\Rightarrow\quad T_{2D} = \frac{m \langle v^2 \rangle}{2 k_B}$$
 
-    En 3D, on aurait un facteur 3 au dénominateur. Ici le facteur est \textbf{2} car on ne considère que les composantes $v_x$ et $v_y$.
+    Le facteur est \textbf{2} (et non 3 comme en 3D) car il n'y a que 2 composantes de vitesse.
 
 \section*{Question 14.10}
     \begin{itemize}
@@ -248,5 +247,9 @@
         \item \textbf{Liquide} (transition) : des agrégats locaux commencent à se former. Les molécules restent mobiles mais montrent une corrélation à courte portée.
         \item \textbf{Solide} ($T = 10$ K) : les molécules s'organisent en une structure ordonnée (maille cristalline triangulaire). Elles vibrent autour de positions fixes.
     \end{itemize}
+
+\section*{Question 15.4}
+    heatmap graphe
+    couleur = proba de présence
 
 \end{document}

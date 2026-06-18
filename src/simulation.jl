@@ -257,8 +257,6 @@ end
 # Q8.6 : profil de pression en fonction de z
 function he_with_g()
     export_path = "export/q08"
-    isdir(export_path) && rm(export_path, recursive=true)
-    mkpath(export_path)
 
     dt = 1e-13
     duration = 5e-11
