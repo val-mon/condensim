@@ -201,15 +201,13 @@
     car $P = nk_BT$ et $n(z) \propto \exp(-mgz/k_BT)$.
 
 \section*{Question 13.1}
-    Les composantes tangentielles $v_x$ et $v_y$ (parallèles à la paroi) suivent une distribution normale centrée $\mathcal{N}(0,\sigma)$.
-    En effet, à l'équilibre, chaque composante de vitesse est indépendante et distribuée selon Maxwell–Boltzmann, ce qui donne une gaussienne pour chaque direction.\\
+    Les composantes tangentielles $v_x$ et $v_y$ suivent une gaussienne, autant de chance d'aller à gauche que à droite.
 
     La composante normale $v_z$ suit en revanche une distribution de Rayleigh.
-    Cela vient du fait que la paroi ne réémet que les particules qui se dirigent \emph{vers l'intérieur} du domaine ($v_z > 0$ ou $v_z < 0$ selon la paroi).
-    Le flux de particules frappant la paroi est proportionnel à $v_z \cdot f_{\text{MB}}(v_z)$, ce qui, après renormalisation sur $v_z > 0$, donne une distribution de Rayleigh :
-    $$f(v_z) = \frac{v_z}{\sigma^2} e^{-v_z^2 / (2\sigma^2)}, \quad v_z > 0$$
-    avec $\sigma = \sqrt{k_B T / m}$.
+    La composante est forcément positive car elle va toujours à l'intérieur et est orienté selon la paroi.
 
+    La composante est dépendant de la température.
+  
 \section*{Question 14.1}
     $\sigma$ est la distance à laquelle le potentiel s'annule ($U(\sigma) = 0$).
     C'est une constante mesurée, donnée et propre à chaque gaz, tout comme $\varepsilon$.
